@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">RustoreBillingSample</string>
+    <string name="get_products">get products</string>
+    <string name="billing_example">Billing example</string>
+    <string name="getproducts">getProducts()</string>
+    <string name="getPurchases">getPurchases()</string>
+</resources>
