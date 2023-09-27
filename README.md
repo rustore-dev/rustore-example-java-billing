@@ -64,7 +64,7 @@ purchasesUseCase.getPurchases().addOnCompleteListener(new OnCompleteListener<Lis
             }
         });
 ```
-Пример взят из [StartFragment.java](https://gitflic.ru/project/edudin/rustore-billing-java-example/blob?file=app%2Fsrc%2Fmain%2Fjava%2Fru%2Frustore%2Fexample%2Frustorebillingsample%2FStartFragment.java&branch=master).
+Пример взят из [StartFragment.java](https://gitflic.ru/project/rustore/rustore-example-java-billing/blob?file=app/src/main/java/ru/rustore/example/rustorebillingsample/StartFragment.java&branch=master).
 > Использовать синхронные await() методы не обязательно.
 
 Обработать результат покупки необходимо следующим образом:
@@ -95,7 +95,7 @@ private void handlePaymentResult(PaymentResult paymentResult) {
 }
 
 ```
-Пример взят из [StartFragment.java](https://gitflic.ru/project/edudin/rustore-billing-java-example/blob?file=app%2Fsrc%2Fmain%2Fjava%2Fru%2Frustore%2Fexample%2Frustorebillingsample%2FStartFragment.java&branch=master).
+Пример взят из [StartFragment.java](https://gitflic.ru/project/rustore/rustore-example-java-billing/blob?file=app/src/main/java/ru/rustore/example/rustorebillingsample/StartFragment.java&branch=master).
 
 ### Есть вопросы
 Если появились вопросы по интеграции SDK платежей, обратитесь по этой ссылке:
