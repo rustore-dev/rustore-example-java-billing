@@ -16,7 +16,7 @@ import ru.rustore.sdk.billingclient.model.purchase.Purchase;
 
 public class PurchaseAdapter extends RecyclerView.Adapter<PurchaseAdapter.ViewHolder> {
 
-    private List<Purchase> mPurchases;
+    private final List<Purchase> mPurchases;
 
     public PurchaseAdapter(List<Purchase> purchases) {
         mPurchases = purchases;
@@ -27,13 +27,10 @@ public class PurchaseAdapter extends RecyclerView.Adapter<PurchaseAdapter.ViewHo
         public TextView purchaseId;
         public TextView purchaseState;
 
-        public Button confirmPurchaseButton;
-
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
             purchaseId = (TextView) itemView.findViewById(R.id.purchaseId);
             purchaseState = (TextView) itemView.findViewById(R.id.purchaseState);
-            confirmPurchaseButton = (Button) itemView.findViewById(R.id.confirmPurchase);
         }
     }
 
@@ -57,14 +54,6 @@ public class PurchaseAdapter extends RecyclerView.Adapter<PurchaseAdapter.ViewHo
 
         purchaseId.setText(purchase.getPurchaseId());
         purchaseState.setText(String.valueOf(purchase.getPurchaseState()));
-
-        Button confirmPurchaseButton = holder.confirmPurchaseButton;
-        confirmPurchaseButton.setText("confirm");
-        confirmPurchaseButton.setEnabled(true);
-
-        confirmPurchaseButton.setOnClickListener(v -> {
-
-        });
     }
 
 

@@ -17,6 +17,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import kotlin.Unit;
 import ru.rustore.example.rustorebillingsample.di.PaymentsModule;
@@ -39,6 +40,8 @@ public class StartFragment extends Fragment {
     Button buyProductButton;
 
     RecyclerView productsList;
+
+    RecyclerView purchasesList;
 
     List<Product> products;
 
@@ -66,13 +69,11 @@ public class StartFragment extends Fragment {
     ) {
         super.onViewCreated(view, savedInstanceState);
 
-        final ProductsAdapter productsAdapter = new ProductsAdapter(products);
-
         productButton = view.findViewById(R.id.productsButton);
         purchaseButton = view.findViewById(R.id.purchasesButton);
-        buyProductButton = view.findViewById(R.id.buyProduct);
 
         productsList = view.findViewById(R.id.productsList);
+        purchasesList = view.findViewById(R.id.purchasesList);
 
         checkPurchaseAvailiability();
 
@@ -83,7 +84,6 @@ public class StartFragment extends Fragment {
         purchaseButton.setOnClickListener(v -> {
             getPurchases();
         });
-
     }
 
     public void checkPurchaseAvailiability() {
@@ -122,6 +122,14 @@ public class StartFragment extends Fragment {
                 productsList.setAdapter(productsAdapter);
 
                 productsList.setLayoutManager(new LinearLayoutManager(getContext()));
+
+                ItemClickSupport.addTo(productsList).setOnItemClickListener(new ItemClickSupport.OnItemClickListener() {
+                    @Override
+                    public void onItemClicked(RecyclerView recyclerView, int position, View v) {
+                        purchaseProduct(products.get(position).getProductId());
+                        Toast.makeText(getContext(), "Clicked: " + position, Toast.LENGTH_LONG).show();
+                    }
+                });
             }
         });
     }
@@ -139,8 +147,8 @@ public class StartFragment extends Fragment {
             public void onSuccess(List<Purchase> purchases) {
                 PurchaseAdapter purchaseAdapter = new PurchaseAdapter(purchases);
 
-                productsList.setAdapter(purchaseAdapter);
-                productsList.setLayoutManager(new LinearLayoutManager(getContext()));
+                purchasesList.setAdapter(purchaseAdapter);
+                purchasesList.setLayoutManager(new LinearLayoutManager(getContext()));
 
                 purchases.forEach(purchase -> {
                     String purchaseId = purchase.getPurchaseId();
@@ -166,7 +174,7 @@ public class StartFragment extends Fragment {
                 .addOnCompleteListener(new OnCompleteListener<PaymentResult>() {
             @Override
             public void onFailure(@NonNull Throwable throwable) {
-
+                Log.e("RuStoreBillingClient", "Error calling purchaseProduct cause: " + throwable);
             }
 
             @Override

@@ -1,11 +1,15 @@
 package ru.rustore.example.rustorebillingsample;
 
+import static androidx.core.content.ContentProviderCompat.requireContext;
+
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
@@ -18,21 +22,10 @@ import ru.rustore.sdk.billingclient.model.product.Product;
 import ru.rustore.sdk.billingclient.model.purchase.Purchase;
 
 public class ProductsAdapter extends RecyclerView.Adapter<ProductsAdapter.ViewHolder> {
-
     private final List<Product> mProducts;
 
     public ProductsAdapter(List<Product> products) {
         mProducts = products;
-    }
-
-    public OnClickListener onClickListener;
-
-    public void setOnClickListener(OnClickListener onClickListener) {
-        this.onClickListener = onClickListener;
-    }
-
-    public interface OnClickListener {
-        void onClick(int position, Product product);
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
@@ -47,7 +40,7 @@ public class ProductsAdapter extends RecyclerView.Adapter<ProductsAdapter.ViewHo
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
 
-            productNameTextView = itemView.findViewById(R.id.productName);
+            this.productNameTextView = itemView.findViewById(R.id.productName);
             productIdTextView = itemView.findViewById(R.id.productId);
             productPriceTextView = itemView.findViewById(R.id.productPrice);
             buyProductButton = itemView.findViewById(R.id.buyProduct);
@@ -81,13 +74,6 @@ public class ProductsAdapter extends RecyclerView.Adapter<ProductsAdapter.ViewHo
         Button button = holder.buyProductButton;
         button.setText("Купить");
         button.setEnabled(true);
-
-
-        holder.itemView.setOnClickListener(v -> {
-            if (onClickListener != null) {
-                onClickListener.onClick(position, product);
-            }
-        });
     }
 
     @Override

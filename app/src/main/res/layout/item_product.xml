@@ -3,6 +3,8 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content" >
 
+
+
     <TextView
         android:id="@+id/productName"
         android:layout_width="0dp"
@@ -19,7 +21,7 @@
         android:id="@+id/productPrice"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_weight="1"/>
+        android:layout_weight="1" />
     
     <Button
         android:id="@+id/buyProduct"
