@@ -6,19 +6,14 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.TextView;
 import android.widget.Toast;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-
 import java.util.Arrays;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
-
 import kotlin.Unit;
 import ru.rustore.example.rustorebillingsample.di.PaymentsModule;
 import ru.rustore.sdk.billingclient.RuStoreBillingClient;
@@ -36,14 +31,8 @@ public class StartFragment extends Fragment {
 
     Button productButton;
     Button purchaseButton;
-
-    Button buyProductButton;
-
     RecyclerView productsList;
-
     RecyclerView purchasesList;
-
-    List<Product> products;
 
     private static final RuStoreBillingClient billingClient =
             PaymentsModule.provideRuStorebillingClient();
@@ -123,12 +112,9 @@ public class StartFragment extends Fragment {
 
                 productsList.setLayoutManager(new LinearLayoutManager(getContext()));
 
-                ItemClickSupport.addTo(productsList).setOnItemClickListener(new ItemClickSupport.OnItemClickListener() {
-                    @Override
-                    public void onItemClicked(RecyclerView recyclerView, int position, View v) {
-                        purchaseProduct(products.get(position).getProductId());
-                        Toast.makeText(getContext(), "Clicked: " + position, Toast.LENGTH_LONG).show();
-                    }
+                ItemClickSupport.addTo(productsList).setOnItemClickListener((recyclerView, position, v) -> {
+                    purchaseProduct(products.get(position).getProductId());
+                    Toast.makeText(getContext(), "Clicked: " + position, Toast.LENGTH_LONG).show();
                 });
             }
         });
@@ -153,24 +139,28 @@ public class StartFragment extends Fragment {
                 purchases.forEach(purchase -> {
                     String purchaseId = purchase.getPurchaseId();
                     if (purchaseId != null) {
-                        if (purchase.getPurchaseState() == PurchaseState.CREATED ||
-                                purchase.getPurchaseState() == PurchaseState.INVOICE_CREATED )
-                        {
-                            deletePurchase(purchaseId);
-                        } else if (purchase.getPurchaseState() == PurchaseState.PAID) {
-                            confirmPurchase(purchaseId);
+                        if (purchase.getPurchaseState() != null) {
+                            if (purchase.getPurchaseState() == PurchaseState.CREATED ||
+                                    purchase.getPurchaseState() == PurchaseState.INVOICE_CREATED )
+                            {
+                                deletePurchase(purchaseId);
+                            } else if (purchase.getPurchaseState() == PurchaseState.PAID) {
+                                confirmPurchase(purchaseId);
+                            }
+                        } else {
+                            Log.e("HOHOHO", "PurchaseState is null");
                         }
+
                     }
                 });
             }
         });
-
     }
 
     public void purchaseProduct(String productId) {
         PurchasesUseCase purchasesUseCase = billingClient.getPurchases();
 
-        purchasesUseCase.purchaseProduct(productId)
+        purchasesUseCase.purchaseProduct(productId, null, 1)
                 .addOnCompleteListener(new OnCompleteListener<PaymentResult>() {
             @Override
             public void onFailure(@NonNull Throwable throwable) {

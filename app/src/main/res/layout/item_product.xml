@@ -22,14 +22,5 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_weight="1" />
-    
-    <Button
-        android:id="@+id/buyProduct"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:paddingLeft="16dp"
-        android:paddingRight="16dp"
-        android:textSize="12sp"
-        />
 
 </LinearLayout>

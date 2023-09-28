@@ -1,25 +1,14 @@
 package ru.rustore.example.rustorebillingsample;
 
-import static androidx.core.content.ContentProviderCompat.requireContext;
-
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
-import android.widget.Button;
 import android.widget.TextView;
-import android.widget.Toast;
-
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
-
-import org.w3c.dom.Text;
-
 import java.util.List;
-
 import ru.rustore.sdk.billingclient.model.product.Product;
-import ru.rustore.sdk.billingclient.model.purchase.Purchase;
 
 public class ProductsAdapter extends RecyclerView.Adapter<ProductsAdapter.ViewHolder> {
     private final List<Product> mProducts;
@@ -34,16 +23,14 @@ public class ProductsAdapter extends RecyclerView.Adapter<ProductsAdapter.ViewHo
         public TextView productNameTextView;
         public TextView productPriceTextView;
 
-        public Button buyProductButton;
 
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
 
-            this.productNameTextView = itemView.findViewById(R.id.productName);
+            productNameTextView = itemView.findViewById(R.id.productName);
             productIdTextView = itemView.findViewById(R.id.productId);
             productPriceTextView = itemView.findViewById(R.id.productPrice);
-            buyProductButton = itemView.findViewById(R.id.buyProduct);
         }
     }
 
@@ -69,11 +56,6 @@ public class ProductsAdapter extends RecyclerView.Adapter<ProductsAdapter.ViewHo
         productName.setText(product.getTitle());
         productId.setText(product.getProductId());
         priceText.setText(String.valueOf(product.getPrice()));
-
-
-        Button button = holder.buyProductButton;
-        button.setText("Купить");
-        button.setEnabled(true);
     }
 
     @Override
