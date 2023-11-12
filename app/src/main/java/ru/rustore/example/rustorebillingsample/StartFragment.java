@@ -12,6 +12,10 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.util.Arrays;
 import java.util.List;
 import kotlin.Unit;
@@ -139,6 +143,8 @@ public class StartFragment extends Fragment {
                 purchases.forEach(purchase -> {
                     String purchaseId = purchase.getPurchaseId();
                     if (purchaseId != null) {
+                        assert purchase.getDeveloperPayload() != null;
+                        Log.w("HOHOHO", purchase.getDeveloperPayload());
                         if (purchase.getPurchaseState() != null) {
                             if (purchase.getPurchaseState() == PurchaseState.CREATED ||
                                     purchase.getPurchaseState() == PurchaseState.INVOICE_CREATED )
@@ -160,18 +166,31 @@ public class StartFragment extends Fragment {
     public void purchaseProduct(String productId) {
         PurchasesUseCase purchasesUseCase = billingClient.getPurchases();
 
-        purchasesUseCase.purchaseProduct(productId, null, 1)
-                .addOnCompleteListener(new OnCompleteListener<PaymentResult>() {
-            @Override
-            public void onFailure(@NonNull Throwable throwable) {
-                Log.e("RuStoreBillingClient", "Error calling purchaseProduct cause: " + throwable);
-            }
+        String developerPayload = "your_developer_payload";
 
-            @Override
-            public void onSuccess(PaymentResult paymentResult) {
-                handlePaymentResult(paymentResult);
-            }
-        });
+        //Пример использования json для передачи в developerPayload
+        try {
+            String developerPayloadJson = "{\"key1\":\"value1\",\"key2\":\"value2\"}";
+
+            JSONObject developerPayloadJsonObject = new JSONObject(developerPayloadJson);
+
+            purchasesUseCase.purchaseProduct(productId, null, 1, developerPayload)
+                    .addOnCompleteListener(new OnCompleteListener<PaymentResult>() {
+                        @Override
+                        public void onFailure(@NonNull Throwable throwable) {
+                            Log.e("RuStoreBillingClient", "Error calling purchaseProduct cause: " + throwable);
+                        }
+
+                        @Override
+                        public void onSuccess(PaymentResult paymentResult) {
+                            handlePaymentResult(paymentResult);
+                        }
+                    });
+        } catch (JSONException e) {
+            e.fillInStackTrace();
+        }
+
+
     }
 
     private void handlePaymentResult(PaymentResult paymentResult) {
