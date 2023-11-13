@@ -168,29 +168,18 @@ public class StartFragment extends Fragment {
 
         String developerPayload = "your_developer_payload";
 
-        //Пример использования json для передачи в developerPayload
-        try {
-            String developerPayloadJson = "{\"key1\":\"value1\",\"key2\":\"value2\"}";
 
-            JSONObject developerPayloadJsonObject = new JSONObject(developerPayloadJson);
-
-            purchasesUseCase.purchaseProduct(productId, null, 1, developerPayload)
-                    .addOnCompleteListener(new OnCompleteListener<PaymentResult>() {
-                        @Override
-                        public void onFailure(@NonNull Throwable throwable) {
-                            Log.e("RuStoreBillingClient", "Error calling purchaseProduct cause: " + throwable);
-                        }
-
-                        @Override
-                        public void onSuccess(PaymentResult paymentResult) {
-                            handlePaymentResult(paymentResult);
-                        }
-                    });
-        } catch (JSONException e) {
-            e.fillInStackTrace();
-        }
-
-
+        purchasesUseCase.purchaseProduct(productId, null, 1, developerPayload)
+                .addOnCompleteListener(new OnCompleteListener<PaymentResult>() {
+                    @Override
+                    public void onFailure(@NonNull Throwable throwable) {
+                        Log.e("RuStoreBillingClient", "Error calling purchaseProduct cause: " + throwable);
+                    }
+                    @Override
+                    public void onSuccess(PaymentResult paymentResult) {
+                        handlePaymentResult(paymentResult);
+                    }
+                });
     }
 
     private void handlePaymentResult(PaymentResult paymentResult) {
