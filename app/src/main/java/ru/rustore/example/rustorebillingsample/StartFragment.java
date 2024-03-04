@@ -12,24 +12,16 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import java.util.Arrays;
-import java.util.List;
-import kotlin.Unit;
 import ru.rustore.example.rustorebillingsample.di.PaymentsModule;
 import ru.rustore.sdk.billingclient.RuStoreBillingClient;
-import ru.rustore.sdk.billingclient.model.product.Product;
 import ru.rustore.sdk.billingclient.model.purchase.PaymentResult;
-import ru.rustore.sdk.billingclient.model.purchase.Purchase;
 import ru.rustore.sdk.billingclient.model.purchase.PurchaseState;
 import ru.rustore.sdk.billingclient.usecase.ProductsUseCase;
 import ru.rustore.sdk.billingclient.usecase.PurchasesUseCase;
 import ru.rustore.sdk.billingclient.utils.pub.RuStoreBillingClientExtKt;
+import ru.rustore.sdk.core.exception.RuStoreException;
 import ru.rustore.sdk.core.feature.model.FeatureAvailabilityResult;
-import ru.rustore.sdk.core.tasks.OnCompleteListener;
 
 public class StartFragment extends Fragment {
 
@@ -47,19 +39,12 @@ public class StartFragment extends Fragment {
 
     @Nullable
     @Override
-    public View onCreateView(
-            @NonNull LayoutInflater inflater,
-            @Nullable ViewGroup container,
-            @Nullable Bundle savedInstanceState
-    ) {
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         return inflater.inflate(R.layout.fragment_start, container, false);
     }
 
     @Override
-    public void onViewCreated(
-            @NonNull View view,
-            @Nullable Bundle savedInstanceState
-    ) {
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
         productButton = view.findViewById(R.id.productsButton);
@@ -70,28 +55,22 @@ public class StartFragment extends Fragment {
 
         checkPurchaseAvailiability();
 
-        productButton.setOnClickListener(v -> {
-            getProducts();
-        });
+        productButton.setOnClickListener(v -> getProducts());
 
-        purchaseButton.setOnClickListener(v -> {
-            getPurchases();
-        });
+        purchaseButton.setOnClickListener(v -> getPurchases());
     }
 
     public void checkPurchaseAvailiability() {
-        RuStoreBillingClientExtKt
-                .checkPurchasesAvailability(RuStoreBillingClient.Companion, requireContext())
-                .addOnCompleteListener(new OnCompleteListener<FeatureAvailabilityResult>() {
-                    @Override
-                    public void onFailure(@NonNull Throwable throwable) {
-                        Log.e("RuStoreBillingClient", "Error calling checkPurchaseAvailiability: " + throwable);
+        RuStoreBillingClientExtKt.checkPurchasesAvailability(RuStoreBillingClient.Companion, getContext())
+                .addOnSuccessListener(result -> {
+                    if (result instanceof FeatureAvailabilityResult.Available) {
+                        Log.w("RuStoreBillingClient", "Success calling checkPurchaseAvailiability - Available: " + result);
+                    } else {
+                        RuStoreException exception = ((FeatureAvailabilityResult.Unavailable) result).getCause();
+                        Log.w("RuStoreBillingClient", "Success calling checkPurchaseAvailiability - Unavailable: " + exception);
                     }
-
-                    @Override
-                    public void onSuccess(FeatureAvailabilityResult result) {
-                        Log.w("RuStoreBillingClient", "FeatureAvailabilityResult: " + result);
-                    }
+                }).addOnFailureListener(error -> {
+                    Log.e("RuStoreBillingClient", "Error calling checkPurchaseAvailiability: " + error);
                 });
     }
 
@@ -100,67 +79,53 @@ public class StartFragment extends Fragment {
 
         productsUseCase.getProducts(
                 Arrays.asList(
-                "your_product_id1", "your_product_id_2", "your_product_id_3",
+                        "your_product_id1", "your_product_id_2", "your_product_id_3",
                         "your_subscription_id_1"
-                )).addOnCompleteListener(new OnCompleteListener<List<Product>>() {
-            @Override
-            public void onFailure(@NonNull Throwable throwable) {
-                Log.e("RuStoreBillingClient", "Error calling getProducts cause: " + throwable);
-            }
+                )).addOnSuccessListener(products -> {
+                    ProductsAdapter productsAdapter = new ProductsAdapter(products);
 
-            @Override
-            public void onSuccess(List<Product> products) {
-                ProductsAdapter productsAdapter = new ProductsAdapter(products);
+                    productsList.setAdapter(productsAdapter);
 
-                productsList.setAdapter(productsAdapter);
+                    productsList.setLayoutManager(new LinearLayoutManager(getContext()));
 
-                productsList.setLayoutManager(new LinearLayoutManager(getContext()));
-
-                ItemClickSupport.addTo(productsList).setOnItemClickListener((recyclerView, position, v) -> {
-                    purchaseProduct(products.get(position).getProductId());
-                    Toast.makeText(getContext(), "Clicked: " + position, Toast.LENGTH_LONG).show();
-                });
-            }
-        });
+                    ItemClickSupport.addTo(productsList).setOnItemClickListener((recyclerView, position, v) -> {
+                        purchaseProduct(products.get(position).getProductId());
+                        Toast.makeText(getContext(), "Clicked: " + position, Toast.LENGTH_LONG).show();
+                    });
+                }).addOnFailureListener(throwable -> Log.e("RuStoreBillingClient", "Error calling getProducts cause: " + throwable));
     }
 
     public void getPurchases() {
         PurchasesUseCase purchasesUseCase = billingClient.getPurchases();
 
-        purchasesUseCase.getPurchases().addOnCompleteListener(new OnCompleteListener<List<Purchase>>() {
-            @Override
-            public void onFailure(@NonNull Throwable throwable) {
-                Log.e("RuStoreBillingClient", "Error calling getPurchases cause: " + throwable);
-            }
+        purchasesUseCase.getPurchases().addOnSuccessListener(purchases -> {
+            PurchaseAdapter purchaseAdapter = new PurchaseAdapter(purchases);
 
-            @Override
-            public void onSuccess(List<Purchase> purchases) {
-                PurchaseAdapter purchaseAdapter = new PurchaseAdapter(purchases);
+            purchasesList.setAdapter(purchaseAdapter);
+            purchasesList.setLayoutManager(new LinearLayoutManager(getContext()));
 
-                purchasesList.setAdapter(purchaseAdapter);
-                purchasesList.setLayoutManager(new LinearLayoutManager(getContext()));
-
-                purchases.forEach(purchase -> {
-                    String purchaseId = purchase.getPurchaseId();
-                    if (purchaseId != null) {
-                        assert purchase.getDeveloperPayload() != null;
-                        Log.w("HOHOHO", purchase.getDeveloperPayload());
-                        if (purchase.getPurchaseState() != null) {
-                            if (purchase.getPurchaseState() == PurchaseState.CREATED ||
-                                    purchase.getPurchaseState() == PurchaseState.INVOICE_CREATED )
-                            {
-                                deletePurchase(purchaseId);
-                            } else if (purchase.getPurchaseState() == PurchaseState.PAID) {
-                                confirmPurchase(purchaseId);
-                            }
-                        } else {
-                            Log.e("HOHOHO", "PurchaseState is null");
+            purchases.forEach(purchase -> {
+                String purchaseId = purchase.getPurchaseId();
+                if (purchaseId != null) {
+                    assert purchase.getDeveloperPayload() != null;
+                    Log.w("HOHOHO", purchase.getDeveloperPayload());
+                    if (purchase.getPurchaseState() != null) {
+                        if (purchase.getPurchaseState() == PurchaseState.CREATED ||
+                                purchase.getPurchaseState() == PurchaseState.INVOICE_CREATED )
+                        {
+                            deletePurchase(purchaseId);
+                        } else if (purchase.getPurchaseState() == PurchaseState.PAID) {
+                            confirmPurchase(purchaseId);
                         }
-
+                    } else {
+                        Log.e("HOHOHO", "PurchaseState is null");
                     }
-                });
-            }
-        });
+
+                }
+            });
+        }).addOnFailureListener(throwable ->
+            Log.e("RuStoreBillingClient", "Error calling getPurchases cause: " + throwable)
+        );
     }
 
     public void purchaseProduct(String productId) {
@@ -168,18 +133,11 @@ public class StartFragment extends Fragment {
 
         String developerPayload = "your_developer_payload";
 
-
         purchasesUseCase.purchaseProduct(productId, null, 1, developerPayload)
-                .addOnCompleteListener(new OnCompleteListener<PaymentResult>() {
-                    @Override
-                    public void onFailure(@NonNull Throwable throwable) {
-                        Log.e("RuStoreBillingClient", "Error calling purchaseProduct cause: " + throwable);
-                    }
-                    @Override
-                    public void onSuccess(PaymentResult paymentResult) {
-                        handlePaymentResult(paymentResult);
-                    }
-                });
+                .addOnSuccessListener(this::handlePaymentResult)
+                .addOnFailureListener(throwable ->
+            Log.e("RuStoreBillingClient", "Error calling purchaseProduct cause: " + throwable)
+        );
     }
 
     private void handlePaymentResult(PaymentResult paymentResult) {
@@ -194,17 +152,11 @@ public class StartFragment extends Fragment {
         PurchasesUseCase purchasesUseCase = billingClient.getPurchases();
 
         purchasesUseCase.confirmPurchase(purchaseId)
-                .addOnCompleteListener(new OnCompleteListener<Unit>() {
-            @Override
-            public void onFailure(@NonNull Throwable throwable) {
-
-            }
-
-            @Override
-            public void onSuccess(Unit unit) {
-                Toast.makeText(getContext(), "Purchase confirmed", Toast.LENGTH_LONG).show();
-            }
-        });
+                .addOnSuccessListener(unit -> {
+                    Toast.makeText(getContext(), "Purchase confirmed", Toast.LENGTH_LONG).show();
+                }).addOnFailureListener(throwable -> {
+                    Log.e("RuStoreBillingClient", "Error calling confirmPurchase cause: " + throwable);
+                });
     }
 
 
@@ -212,16 +164,9 @@ public class StartFragment extends Fragment {
         PurchasesUseCase purchasesUseCase = billingClient.getPurchases();
 
         purchasesUseCase.deletePurchase(purchaseId)
-                .addOnCompleteListener(new OnCompleteListener<Unit>() {
-            @Override
-            public void onFailure(@NonNull Throwable throwable) {
-
-            }
-
-            @Override
-            public void onSuccess(Unit unit) {
-
-            }
-        });
+                .addOnSuccessListener(unit -> {})
+                .addOnFailureListener(throwable -> {
+                    Log.e("RuStoreBillingClient", "Error calling deletePurchase cause: " + throwable);
+                });
     }
 }
