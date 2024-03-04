@@ -1,7 +1,6 @@
 package ru.rustore.example.rustorebillingsample;
 
 import androidx.appcompat.app.AppCompatActivity;
-
 import android.content.Intent;
 import android.os.Bundle;
 import ru.rustore.example.rustorebillingsample.di.PaymentsModule;
