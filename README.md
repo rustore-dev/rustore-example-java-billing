@@ -38,33 +38,36 @@ RuStore Billing SDK требует правильно обрабатывать �
 
 При открытии вашего экрана товаров, необходимо получить список товаров с помощью getPurchases() и обработать товары следующим образом:
 ```
-purchasesUseCase.getPurchases().addOnCompleteListener(new OnCompleteListener<List<Purchase>>() {
-            @Override
-            public void onFailure(@NonNull Throwable throwable) {
-                Log.e("RuStoreBillingClient", "Error calling getPurchases cause: " + throwable);
-            }
+public void getPurchases() {
+    PurchasesUseCase purchasesUseCase = billingClient.getPurchases();
 
-            @Override
-            public void onSuccess(List<Purchase> purchases) {
-                PurchaseAdapter purchaseAdapter = new PurchaseAdapter(purchases);
+    purchasesUseCase.getPurchases().addOnSuccessListener(purchases -> {
+        PurchaseAdapter purchaseAdapter = new PurchaseAdapter(purchases);
 
-                productsList.setAdapter(purchaseAdapter);
-                productsList.setLayoutManager(new LinearLayoutManager(getContext()));
+        purchasesList.setAdapter(purchaseAdapter);
+        purchasesList.setLayoutManager(new LinearLayoutManager(getContext()));
 
-                purchases.forEach(purchase -> {
-                    String purchaseId = purchase.getPurchaseId();
-                    if (purchaseId != null) {
-                        if (purchase.getPurchaseState() == PurchaseState.CREATED ||
-                                purchase.getPurchaseState() == PurchaseState.INVOICE_CREATED )
-                        {
-                            deletePurchase(purchaseId);
-                        } else if (purchase.getPurchaseState() == PurchaseState.PAID) {
-                            confirmPurchase(purchaseId);
-                        }
+        purchases.forEach(purchase -> {
+            String purchaseId = purchase.getPurchaseId();
+            if (purchaseId != null) {
+                assert purchase.getDeveloperPayload() != null;
+                if (purchase.getPurchaseState() != null) {
+                    if (purchase.getPurchaseState() == PurchaseState.CREATED ||
+                            purchase.getPurchaseState() == PurchaseState.INVOICE_CREATED )
+                    {
+                        deletePurchase(purchaseId);
+                    } else if (purchase.getPurchaseState() == PurchaseState.PAID) {
+                        confirmPurchase(purchaseId);
                     }
-                });
+                } else {
+                    Log.e("RuStoreBillingClient", "PurchaseState is null")
+                }
             }
         });
+    }).addOnFailureListener(throwable ->
+        Log.e("RuStoreBillingClient", "Error calling getPurchases cause: " + throwable)
+    );
+}
 ```
 Пример взят из [StartFragment.java](https://gitflic.ru/project/rustore/rustore-example-java-billing/blob?file=app/src/main/java/ru/rustore/example/rustorebillingsample/StartFragment.java&branch=master).
 > Использовать синхронные await() методы не обязательно.
@@ -74,18 +77,11 @@ purchasesUseCase.getPurchases().addOnCompleteListener(new OnCompleteListener<Lis
 public void purchaseProduct(String productId) {
         PurchasesUseCase purchasesUseCase = billingClient.getPurchases();
 
-        purchasesUseCase.purchaseProduct(productId)
-                .addOnCompleteListener(new OnCompleteListener<PaymentResult>() {
-            @Override
-            public void onFailure(@NonNull Throwable throwable) {
-
-            }
-
-            @Override
-            public void onSuccess(PaymentResult paymentResult) {
-                handlePaymentResult(paymentResult);
-            }
-        });
+        purchasesUseCase.purchaseProduct(productId, null, 1, developerPayload)
+                .addOnSuccessListener(this::handlePaymentResult)
+                .addOnFailureListener(throwable ->
+            // Process error
+        );
 }
 
 private void handlePaymentResult(PaymentResult paymentResult) {

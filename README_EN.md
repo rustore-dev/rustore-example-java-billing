@@ -39,40 +39,42 @@ Use deletePurchase method if:
 * The `getPurchases` method returned an error with the following status: 
  * `PurchaseState.CREATED`. 
  * `PurchaseState.INVOICE_CREATED`. 
-* The `purchaseProduct` method returned `PaymentResult.Cancelled`. 
 * The `purchaseProduct` method returned `PaymentResult.Failure`.
 
 Use confirmPurchase if `getPurchases` returned a CONSUMABLE type error with PurchaseState.PAID status.
 
 On opening your products screen get the purchases list with getPurchases() and process these purchases in the following manner:
 ```
-purchasesUseCase.getPurchases().addOnCompleteListener(new OnCompleteListener<List<Purchase>>() {
-            @Override
-            public void onFailure(@NonNull Throwable throwable) {
-                Log.e("RuStoreBillingClient", "Error calling getPurchases cause: " + throwable);
-            }
+public void getPurchases() {
+    PurchasesUseCase purchasesUseCase = billingClient.getPurchases();
 
-            @Override
-            public void onSuccess(List<Purchase> purchases) {
-                PurchaseAdapter purchaseAdapter = new PurchaseAdapter(purchases);
+    purchasesUseCase.getPurchases().addOnSuccessListener(purchases -> {
+        PurchaseAdapter purchaseAdapter = new PurchaseAdapter(purchases);
 
-                productsList.setAdapter(purchaseAdapter);
-                productsList.setLayoutManager(new LinearLayoutManager(getContext()));
+        purchasesList.setAdapter(purchaseAdapter);
+        purchasesList.setLayoutManager(new LinearLayoutManager(getContext()));
 
-                purchases.forEach(purchase -> {
-                    String purchaseId = purchase.getPurchaseId();
-                    if (purchaseId != null) {
-                        if (purchase.getPurchaseState() == PurchaseState.CREATED ||
-                                purchase.getPurchaseState() == PurchaseState.INVOICE_CREATED )
-                        {
-                            deletePurchase(purchaseId);
-                        } else if (purchase.getPurchaseState() == PurchaseState.PAID) {
-                            confirmPurchase(purchaseId);
-                        }
+        purchases.forEach(purchase -> {
+            String purchaseId = purchase.getPurchaseId();
+            if (purchaseId != null) {
+                assert purchase.getDeveloperPayload() != null;
+                if (purchase.getPurchaseState() != null) {
+                    if (purchase.getPurchaseState() == PurchaseState.CREATED ||
+                            purchase.getPurchaseState() == PurchaseState.INVOICE_CREATED )
+                    {
+                        deletePurchase(purchaseId);
+                    } else if (purchase.getPurchaseState() == PurchaseState.PAID) {
+                        confirmPurchase(purchaseId);
                     }
-                });
+                } else {
+                    Log.e("RuStoreBillingClient", "PurchaseState is null")
+                }
             }
         });
+    }).addOnFailureListener(throwable ->
+        Log.e("RuStoreBillingClient", "Error calling getPurchases cause: " + throwable)
+    );
+}
 ```
 The example is taken from [StartFragment.java](https://gitflic.ru/project/rustore/rustore-example-java-billing/blob?file=app/src/main/java/ru/rustore/example/rustorebillingsample/StartFragment.java&branch=master).
 > Synchronous await() methods are optional.
@@ -82,18 +84,11 @@ Process the purchase result in the following manner:
 public void purchaseProduct(String productId) {
         PurchasesUseCase purchasesUseCase = billingClient.getPurchases();
 
-        purchasesUseCase.purchaseProduct(productId)
-                .addOnCompleteListener(new OnCompleteListener<PaymentResult>() {
-            @Override
-            public void onFailure(@NonNull Throwable throwable) {
-
-            }
-
-            @Override
-            public void onSuccess(PaymentResult paymentResult) {
-                handlePaymentResult(paymentResult);
-            }
-        });
+        purchasesUseCase.purchaseProduct(productId, null, 1, developerPayload)
+                .addOnSuccessListener(this::handlePaymentResult)
+                .addOnFailureListener(throwable ->
+            // Process error
+        );
 }
 
 private void handlePaymentResult(PaymentResult paymentResult) {
