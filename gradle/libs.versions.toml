@@ -1,6 +1,6 @@
 [versions]
 agp = "8.0.0"
-billingclient = "5.0.0"
+billingclient = "5.0.1"
 fragment = "1.6.1"
 junit = "4.13.2"
 androidx-test-ext-junit = "1.1.5"

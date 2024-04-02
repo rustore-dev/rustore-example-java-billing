@@ -1,5 +1,5 @@
 # Пример внедрения SDK платежей RuStore
-## [Документация SDK платежей](https://help.rustore.ru/rustore/for_developers/developer-documentation/sdk_payments/SDK-connecting-payments/quick_start)
+## [Документация SDK платежей](https://www.rustore.ru/help/sdk/payments/kotlin-java/)
 
 ### [Readme English Version](https://gitflic.ru/project/rustore/rustore-example-java-billing/blob?file=README_EN.md&branch=master)
 
@@ -34,7 +34,7 @@ android {
 ### Потребление и отмена покупки
 RuStore Billing SDK требует правильно обрабатывать состояния покупки, чтобы предоставить наилучший сценарий использования.
 Так, купленные потребляемые товары необходимо потребить, а незаконченные покупки - отменять, чтобы иметь возможность заново начать новую.
-[Подробнее о потреблении и отмене.](https://help.rustore.ru/rustore/for_developers/developer-documentation/sdk_payments/SDK-connecting-payments/%20consumption-and-withdrawal)
+Подробнее о [потреблении](https://www.rustore.ru/help/sdk/payments/kotlin-java/5-0-0/#подтверждение-покупки) и [отмене](https://www.rustore.ru/help/sdk/payments/kotlin-java/5-0-0/#отмена-покупки).
 
 При открытии вашего экрана товаров, необходимо получить список товаров с помощью getPurchases() и обработать товары следующим образом:
 ```
@@ -96,6 +96,4 @@ private void handlePaymentResult(PaymentResult paymentResult) {
 Пример взят из [StartFragment.java](https://gitflic.ru/project/rustore/rustore-example-java-billing/blob?file=app/src/main/java/ru/rustore/example/rustorebillingsample/StartFragment.java&branch=master).
 
 ### Есть вопросы
-Если появились вопросы по интеграции SDK платежей, обратитесь по этой ссылке:
-[https://help.rustore.ru/rustore/trouble/user/help_user_email](https://help.rustore.ru/rustore/trouble/user/help_user_email)
-или напишите на почту support@rustore.ru.
+Если появились вопросы по интеграции SDK платежей, обратитесь по [ссылке](https://www.rustore.ru/help/sdk/payments).

@@ -15,7 +15,6 @@ public class PaymentsModule {
                 "rustoresdkexamplescheme",
                 null,
                 null,
-                null,
                 true
         );
     }

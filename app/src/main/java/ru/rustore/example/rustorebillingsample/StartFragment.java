@@ -61,7 +61,7 @@ public class StartFragment extends Fragment {
     }
 
     public void checkPurchaseAvailiability() {
-        RuStoreBillingClientExtKt.checkPurchasesAvailability(RuStoreBillingClient.Companion, getContext())
+        RuStoreBillingClientExtKt.checkPurchasesAvailability(RuStoreBillingClient.Companion)
                 .addOnSuccessListener(result -> {
                     if (result instanceof FeatureAvailabilityResult.Available) {
                         Log.w("RuStoreBillingClient", "Success calling checkPurchaseAvailiability - Available: " + result);
