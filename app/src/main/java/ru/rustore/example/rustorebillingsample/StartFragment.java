@@ -19,6 +19,7 @@ import ru.rustore.sdk.billingclient.model.purchase.PaymentResult;
 import ru.rustore.sdk.billingclient.model.purchase.PurchaseState;
 import ru.rustore.sdk.billingclient.usecase.ProductsUseCase;
 import ru.rustore.sdk.billingclient.usecase.PurchasesUseCase;
+import ru.rustore.sdk.billingclient.utils.BillingRuStoreExceptionExtKt;
 import ru.rustore.sdk.billingclient.utils.pub.RuStoreBillingClientExtKt;
 import ru.rustore.sdk.core.exception.RuStoreException;
 import ru.rustore.sdk.core.feature.model.FeatureAvailabilityResult;
@@ -61,12 +62,13 @@ public class StartFragment extends Fragment {
     }
 
     public void checkPurchaseAvailiability() {
-        RuStoreBillingClientExtKt.checkPurchasesAvailability(RuStoreBillingClient.Companion)
+        RuStoreBillingClientExtKt.checkPurchasesAvailability(RuStoreBillingClient.Companion, requireContext())
                 .addOnSuccessListener(result -> {
                     if (result instanceof FeatureAvailabilityResult.Available) {
                         Log.w("RuStoreBillingClient", "Success calling checkPurchaseAvailiability - Available: " + result);
                     } else {
                         RuStoreException exception = ((FeatureAvailabilityResult.Unavailable) result).getCause();
+                        BillingRuStoreExceptionExtKt.resolveForBilling(exception, getContext());
                         Log.w("RuStoreBillingClient", "Success calling checkPurchaseAvailiability - Unavailable: " + exception);
                     }
                 }).addOnFailureListener(error -> {
@@ -79,8 +81,9 @@ public class StartFragment extends Fragment {
 
         productsUseCase.getProducts(
                 Arrays.asList(
-                        "your_product_id1", "your_product_id_2", "your_product_id_3",
-                        "your_subscription_id_1"
+                        "productId1",
+                        "productId2",
+                        "productId3"
                 )).addOnSuccessListener(products -> {
                     ProductsAdapter productsAdapter = new ProductsAdapter(products);
 
