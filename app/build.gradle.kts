@@ -1,9 +1,9 @@
 import com.android.build.api.dsl.ApkSigningConfig
 import java.util.Properties
 
-@Suppress("DSL_SCOPE_VIOLATION") // TODO: Remove once KTIJ-19369 is fixed
 plugins {
-    alias(libs.plugins.androidApplication)
+    id("com.android.application")
+    id("org.jetbrains.kotlin.android")
 }
 
 android {
@@ -53,13 +53,13 @@ android {
 
 dependencies {
 
-    implementation(libs.appcompat)
+    implementation(libs.kotlin.stdlib)
+    implementation(libs.androidx.core)
     implementation(libs.material)
     implementation(libs.constraintlayout)
     testImplementation(libs.junit)
-    androidTestImplementation(libs.androidx.test.ext.junit)
-    androidTestImplementation(libs.espresso.core)
 
 //    RuStore Implementation
-    implementation(libs.billingclient)
+    implementation(platform(libs.rustore.sdk.bom))
+    implementation(libs.rustore.sdk.billingclient)
 }

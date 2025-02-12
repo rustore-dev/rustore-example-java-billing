@@ -19,4 +19,4 @@ dependencyResolutionManagement {
 
 rootProject.name = "RustoreBillingSample"
 include(":app")
- 
+enableFeaturePreview("VERSION_CATALOGS")

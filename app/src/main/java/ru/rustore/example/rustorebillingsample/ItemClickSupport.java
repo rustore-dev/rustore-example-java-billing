@@ -6,9 +6,11 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 public class ItemClickSupport {
+
     private final RecyclerView mRecyclerView;
     private OnItemClickListener mOnItemClickListener;
     private OnItemLongClickListener mOnItemLongClickListener;
+
     private final View.OnClickListener mOnClickListener = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
@@ -18,6 +20,7 @@ public class ItemClickSupport {
             }
         }
     };
+
     private final View.OnLongClickListener mOnLongClickListener = new View.OnLongClickListener() {
         @Override
         public boolean onLongClick(View v) {
@@ -28,6 +31,7 @@ public class ItemClickSupport {
             return false;
         }
     };
+
     private final RecyclerView.OnChildAttachStateChangeListener mAttachListener
             = new RecyclerView.OnChildAttachStateChangeListener() {
         @Override
