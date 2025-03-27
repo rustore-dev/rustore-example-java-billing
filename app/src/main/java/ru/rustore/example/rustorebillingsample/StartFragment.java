@@ -17,6 +17,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import java.util.Arrays;
 import java.util.List;
 
+import kotlin.Suppress;
 import ru.rustore.example.rustorebillingsample.di.PaymentsModule;
 import ru.rustore.sdk.billingclient.RuStoreBillingClient;
 import ru.rustore.sdk.billingclient.model.purchase.PaymentResult;
@@ -133,12 +134,10 @@ public class StartFragment extends Fragment {
                 return;
             }
 
-            boolean needDeletePurchase = purchaseState == PurchaseState.CREATED || purchaseState == PurchaseState.INVOICE_CREATED;
-            boolean needConfirmPurchase = purchaseState == PurchaseState.PAID;
+            if (purchaseState == PurchaseState.PAID) {
+                // If you can not give product to the customer use
+                // deletePurchase(purchaseId)
 
-            if (needDeletePurchase) {
-                deletePurchase(purchaseId);
-            } else if (needConfirmPurchase) {
                 confirmPurchase(purchaseId);
             }
         });
@@ -159,8 +158,6 @@ public class StartFragment extends Fragment {
     private void handlePaymentResult(PaymentResult paymentResult) {
         if (paymentResult instanceof PaymentResult.Success) {
             confirmPurchase(((PaymentResult.Success) paymentResult).getPurchaseId());
-        } else if (paymentResult instanceof PaymentResult.Failure) {
-            deletePurchase(((PaymentResult.Failure) paymentResult).getPurchaseId());
         }
     }
 
@@ -175,7 +172,7 @@ public class StartFragment extends Fragment {
                 });
     }
 
-
+    @SuppressWarnings("unused")
     public void deletePurchase(String purchaseId) {
         PurchasesUseCase purchasesUseCase = billingClient.getPurchases();
 

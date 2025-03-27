@@ -102,7 +102,7 @@ Pressing the 'getPurchases()' buttion triggers retrieving and displaying the [pu
 
 #### Product purchase
 Pressing an item with a product name triggers the [product purchase](https://www.rustore.ru/help/en/sdk/payments/kotlin-java/6-0-0#purchaseproduct) scenario with the payment method screen display.
-Then, if PaymentResult.Success -> is returned, [purchase confirmation](https://www.rustore.ru/help/en/sdk/payments/kotlin-java/6-0-0#confirm) is triggered, otherwise, if PaymentResult.Failure -> is returned, [purchase cancellation](https://www.rustore.ru/help/en/sdk/payments/kotlin-java/6-0-0#deletepurchase) is triggered.
+Then, if PaymentResult.Success -> is returned, [purchase confirmation](https://www.rustore.ru/help/en/sdk/payments/kotlin-java/6-0-0#confirm) is triggered.
 
 
 ### Deeplink handling
