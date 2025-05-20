@@ -17,7 +17,6 @@ import androidx.recyclerview.widget.RecyclerView;
 import java.util.Arrays;
 import java.util.List;
 
-import kotlin.Suppress;
 import ru.rustore.example.rustorebillingsample.di.PaymentsModule;
 import ru.rustore.sdk.billingclient.RuStoreBillingClient;
 import ru.rustore.sdk.billingclient.model.purchase.PaymentResult;
@@ -26,9 +25,7 @@ import ru.rustore.sdk.billingclient.model.purchase.PurchaseAvailabilityResult;
 import ru.rustore.sdk.billingclient.model.purchase.PurchaseState;
 import ru.rustore.sdk.billingclient.usecase.ProductsUseCase;
 import ru.rustore.sdk.billingclient.usecase.PurchasesUseCase;
-import ru.rustore.sdk.billingclient.utils.BillingRuStoreExceptionExtKt;
 import ru.rustore.sdk.billingclient.utils.pub.RuStoreBillingClientExtKt;
-import ru.rustore.sdk.core.exception.RuStoreException;
 
 public class StartFragment extends Fragment {
 
@@ -76,10 +73,8 @@ public class StartFragment extends Fragment {
                         Log.w(TAG, "Success calling checkPurchaseAvailability - Available: " + result);
                     } else if (result instanceof PurchaseAvailabilityResult.Unavailable) {
                         Log.w(TAG, "Success calling checkPurchaseAvailability - Unavailable: " + result);
-                    } else {
-                        RuStoreException exception = ((PurchaseAvailabilityResult.Unavailable) result).getCause();
-                        BillingRuStoreExceptionExtKt.resolveForBilling(exception, getContext());
-                        Log.w(TAG, "Success calling checkPurchaseAvailability - Unavailable: " + exception);
+                    } else if (result instanceof PurchaseAvailabilityResult.Unknown){
+                        Log.w(TAG, "Success calling checkPurchaseAvailability - Unknown");
                     }
                 }).addOnFailureListener(error -> Log.e(TAG, "Error calling checkPurchaseAvailability: " + error));
     }
